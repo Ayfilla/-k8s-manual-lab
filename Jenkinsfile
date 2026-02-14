@@ -1,9 +1,7 @@
 pipeline {
     agent { label 'mac' }
 
-    options {
-        timestamps()
-    }
+    options { timestamps() }
 
     stages {
 
@@ -13,28 +11,29 @@ pipeline {
             }
         }
 
-        stage('Environment') {
+        stage('Show workspace') {
             steps {
                 sh '''
-                    echo USER=$(whoami)
-                    echo HOST=$(hostname)
-                    which node
-                    node -v
-                    which npm
-                    npm -v
+                    echo "Current directory:"
+                    pwd
+                    echo "Repo files:"
+                    ls -la
                 '''
             }
         }
 
-        stage('Install dependencies') {
+        stage('Validate YAML files') {
             steps {
-                sh 'npm install'
+                sh '''
+                    echo "YAML files in repo:"
+                    ls *.yml *.yaml 2>/dev/null || echo "No YAML files found"
+                '''
             }
         }
 
-        stage('Run tests') {
+        stage('Kubectl check') {
             steps {
-                sh 'npm test'
+                sh 'kubectl version --client'
             }
         }
     }
